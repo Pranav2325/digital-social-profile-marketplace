@@ -6,29 +6,34 @@ import { clearChat } from "../app/features/chatSlice";
 import { format } from "date-fns";
 
 const Chatbox = () => {
-  const { listing, isOpen, chatId } = useSelector((state) => state.chat);
+  const { listing, isOpen, chatId } = useSelector((state) => state.chat); //1
 
-  const user = { id: "user_2" };
+  const user = { id: "user_2" }; //3
 
+  //4
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
+
   const dispatch = useDispatch();
 
+  //5
   const fetchChat = async () => {
     setChat(dummyChats[0]);
     setMessages(dummyChats[0].messages);
     setIsLoading(false);
   };
 
+  //6
   useEffect(() => {
     if (listing) {
       fetchChat();
     }
   }, [listing]);
 
+  //7
   useEffect(() => {
     if (!isOpen) {
       setChat(null);
@@ -38,31 +43,44 @@ const Chatbox = () => {
       setIsSending(false);
     }
   }, [isOpen]);
+
+  //8
   const messagesEndRef = useRef(null);
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behaviour: "smooth" });
   }, [messages.length]);
 
-  const handleSendMessage=async(e)=>{
+  //9
+  const handleSendMessage = async (e) => {
     e.preventDefault();
-    if(!newMessage.trim()||isSending) return;
-    setMessages([...messages,{id:Date.now(),chatId:chat.id,sender_id:user.id,message:newMessage,createdAt:new Date()}]);
-    setNewMessage("")
+    if (!newMessage.trim() || isSending) return;
+    setMessages([
+      ...messages,
+      {
+        id: Date.now(),
+        chatId: chat.id,
+        sender_id: user.id,
+        message: newMessage,
+        createdAt: new Date(),
+      },
+    ]);
 
+    setNewMessage("");
+  };
 
-
-  }
-
-  if (!isOpen || !listing) return null;
+  if (!isOpen || !listing) return null; //2
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur bg-opacity-50 z-100 flex items-center justify-center sm:p-4">
       <div className="bg-white sm:rounded-lg shadow-2xl w-full max-w-2xl h-screen sm:h-[600px] flex flex-col">
         {/* header */}
+
         <div className="bg-gradient-to-r from-indigo-600 to-indigo-400 text-white p-4 sm:rounded-t-lg flex items-center justify-between">
           <div className="flex-1 min-w-0">
+            {/* title */}
             <h3 className="font-semibold text-lg truncate">{listing?.title}</h3>
 
+            {/* who are you  */}
             <p className="text-sm text-indigo-100 truncate">
               {user.id === listing?.ownerId
                 ? `Chatting with buyer (${
@@ -73,6 +91,7 @@ const Chatbox = () => {
                   })`}
             </p>
           </div>
+
           <button
             onClick={() => dispatch(clearChat())}
             className="ml-4 p-1 hover:bg-white/20 hover:bg-opacity-20 rounded-lg transition-colors"
@@ -89,6 +108,7 @@ const Chatbox = () => {
               <Loader2Icon className="size-6 animate-spin text-indigo-600" />
             </div>
           ) : messages.length === 0 ? (
+            // if no messages
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <p className="text-gray-500 mb-2">No Messages yet</p>
@@ -112,9 +132,11 @@ const Chatbox = () => {
                       : "bg-white border border-gray-200 text-gray-800"
                   }`}
                 >
+                  {/* message */}
                   <p className="text-sm break-words whitespace-pre-wrap ">
                     {message.message}
                   </p>
+                  {/* time format */}
                   <p
                     className={`text-[10px] mt-1 ${
                       message.sender_id === user.id
@@ -132,23 +154,30 @@ const Chatbox = () => {
         </div>
         {/* input area */}
         {chat?.listing?.status === "active" ? (
-          <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-200 rounded-b-lg">
+          <form
+            onSubmit={handleSendMessage}
+            className="p-4 bg-white border-t border-gray-200 rounded-b-lg"
+          >
             <div className="flex items-end space-x-2">
               <textarea
-              value={newMessage}
-              onChange={(e)=>setNewMessage(e.target.value)}
-              onKeyDown={(e)=>{
-                if(e.key==="Enter"&&!e.shiftKey){
-                  e.preventDefault();
-                  handleSendMessage(e)
-
-                }
-              }}
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage(e);
+                  }
+                }}
                 placeholder="Type your message..."
                 className="flex-1 resize-none border border-gray-300 rounded-lg px-4 py-2 focus:outline-indigo-500 max-h-32"
                 rows={1}
               />
-              <button disabled={!newMessage.trim()||isSending} type='submit' className="bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 rounded-lg disabled:opacity-50 transition-colors">
+
+              <button
+                disabled={!newMessage.trim() || isSending}
+                type="submit"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white p-2.5 rounded-lg disabled:opacity-50 transition-colors"
+              >
                 {isLoading ? (
                   <Loader2Icon className="w-5 h-5 animate-spin" />
                 ) : (
@@ -158,6 +187,7 @@ const Chatbox = () => {
             </div>
           </form>
         ) : (
+          //when listing is sold show this ui
           <div className="p-4 bg-white border-t border-gray-200 rounded-b-lg">
             <p className="text-sm text-gray-600 text-center ">
               {chat ? `Listing is ${chat?.listing?.status}` : "Loading chat..."}
