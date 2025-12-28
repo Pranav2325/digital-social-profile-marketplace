@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { dummyChats } from "../assets/assets";
 import { MessageCircle, Search } from "lucide-react";
 import {format,isToday,isYesterday,parseISO} from 'date-fns'
+import {useDispatch} from "react-redux"
+import { setChat } from "../app/features/chatSlice";
 
 const Messages = () => {
   const user = { id: "user_1" };
+ const dispatch= useDispatch()
 
   const [chats, setChats] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,11 +25,26 @@ const Messages = () => {
     return format(date,"MMM d")
 
   }
+  const filterChats=useMemo(()=>{
+    const query=searchQuery.toLowerCase()
+    return chats.filter((chat)=>{
+      const chatUser=chat.chatUserId=== user?.id?chat?.ownerUser:chat?.chatUser;
+
+      return chat.listing?.title?.toLowerCase().includes(query)||chatUser?.name?.toLowerCase().includes(query)
+
+    })
+  },[chats,searchQuery])
+
+  const handleOpenChat=(chat)=>{
+    dispatch(setChat({listing:chat.listing,chatId:chat.id}))
+
+  }
 
   const fetchUserChats = async () => {
     setChats(dummyChats);
     setLoading(false);
   };
+
   useEffect(() => {
     fetchUserChats();
     const interval = setInterval(() => {
@@ -50,7 +68,7 @@ const Messages = () => {
             type="text"
             placeholder="Search conversations..."
             value={searchQuery}
-            onChange={() => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-indigo-500"
           />
         </div>
@@ -60,7 +78,7 @@ const Messages = () => {
           <div className="text-center text-gray-500 py-20">
             Loading messages...
           </div>
-        ) : chats.length === 0 ? (
+        ) : filterChats.length === 0 ? (
           <div className="bg-white rounded-lg shadow-xs border border-gray-200 p-16 text-center">
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <MessageCircle className="w-8 h-8 text-gray-400" />
@@ -76,10 +94,10 @@ const Messages = () => {
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-xs border border-gray-200 divide-y divide-gray-200">
-            {chats.map((chat)=>{
+            {filterChats.map((chat)=>{
               const chatUser=chat.chatUserId===user?.id?chat.ownerUser:chat.chatUser
               return (
-                <button key={chat.id} className="w-full p-4 hover:bg-gray-50 transition-colors text-left">
+                <button onClick={()=>handleOpenChat(chat)} key={chat.id} className="w-full p-4 hover:bg-gray-50 transition-colors text-left">
                   <div className="flex items-start space-x-4">
                     {/* profile photo */}
                     <div className="flex-shrink-0">
