@@ -1,15 +1,22 @@
 import {
   ArrowDownCircleIcon,
+  BanIcon,
   CheckCircle,
+  Clock,
   CoinsIcon,
   DollarSign,
+  Edit,
   EyeIcon,
+  EyeOffIcon,
   LockIcon,
   Plus,
   Star,
   StarIcon,
+  TrashIcon,
   TrendingUp,
+  Users,
   WalletIcon,
+  XCircle,
 } from "lucide-react";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -32,6 +39,56 @@ const MyListings = () => {
   const soldListings = userListings.filter(
     (listing) => listing.status === "sold"
   ).length;
+
+  const formatNumber = (num) => {
+    if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+    if (num >= 1000) return (num / 1000).toFixed(1) + "K";
+    return num?.toString() || "0";
+  };
+
+  const getSectionIcon = (status) => {
+    switch (status) {
+      case "active":
+        return <CheckCircle className="size-3.5" />;
+      case "ban":
+        return <BanIcon className="size-3.5" />;
+      case "sold":
+        return <DollarSign className="size-3.5" />;
+      case "inactive":
+        return <XCircle className="size-3.5" />;
+
+      default:
+        return <Clock className="size-3.5"/>
+        
+    }
+  };
+  const getSectionColor = (status) => {
+    switch (status) {
+      case "active":
+        return "text-green-800"
+      case "ban":
+        return "text-red-800"
+      case "sold":
+        return "text-indigo-800"
+      case "inactive":
+        return "text-gray-800"
+
+      default:
+        return "text-gray-800"
+        
+    }
+  };
+
+  const toggleStatus=async(listingId)=>{
+    
+  }
+  const deleteListing=async(listingId)=>{
+
+  }
+  const markAsFeatured=async(listingId)=>{
+
+  }
 
   return (
     <div className="px-6 md:px-16 lg:px-24 xl:px-32 pt-8">
@@ -165,7 +222,17 @@ const MyListings = () => {
                               {/* credentail status */}
                               <button className="text-nowrap">
                                 Status:{" "}
-                                <span>
+                                <span
+                                  className={
+                                    listing.isCredentialSubmitted
+                                      ? listing.isCredentialVerified
+                                        ? listing.isCredentialChanged
+                                          ? "text=green-600"
+                                          : "text-indigo-600"
+                                        : "text-slate-600"
+                                      : "text-red-600"
+                                  }
+                                >
                                   {listing.isCredentialSubmitted
                                     ? listing.isCredentialVerified
                                       ? listing.isCredentialChanged
@@ -180,16 +247,15 @@ const MyListings = () => {
                         </div>
                         {/* featured icon */}
                         {listing.status === "active" && (
-                          <StarIcon
+                          <StarIcon 
+                          onClick={()=>markAsFeatured(listing.id)}
                             size={18}
                             className={`text-yellow-500 cursor-pointer ${
                               listing.featured && "fill-yellow-500"
                             }`}
                           />
                         )}
-
                       </div>
-
                     </div>
 
                     <p className="text-sm text-gray-600">
@@ -197,9 +263,61 @@ const MyListings = () => {
                     </p>
                   </div>
                 </div>
+
+                {/* listing stats */}
+                <div className="space-y-4">
+                  {/* followers,status,engagement */}
+                  <div className="grid grid-cols-2 gap-2 text-sm">
+                    <div className="flex items-center space-x-2">
+                      <Users className="size-4 text-gray-400" />
+                      <span>
+                        {formatNumber(listing.followers_count)} followers
+                      </span>
+                    </div>
+                    <span className={`flex items-center justify-end gap-1 ${getSectionColor(listing.status)}`}>
+                      {getSectionIcon(listing.status)} {" "} <span>{listing.status}</span>
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      <TrendingUp className="size-4 text-gray-400"/>
+                      <span>{listing.engagement_rate}% engagement</span>
+                    </div>
+                  </div>
+                  {/* price,sold,edit  */}
+
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-200">
+                    <span className="text-2xl font-bold text-gray-800">
+                      {currency}{listing.price.toLocaleString()}
+                    </span>
+
+                    <div className="flex items-center space-x-2">
+                      {listing.status!=="sold"&&(
+                        <button onClick={()=>deleteListing(listing.id)} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-red-500">
+                          <TrashIcon className="size-4"/>
+                        </button>
+                      )}
+
+                      <button onClick={()=>navigate(`/edit-listing/${listing.id}`)} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-indigo-500">
+                        <Edit className="size-4"/>
+                      </button>
+
+                      <button onClick={()=>toggleStatus(listing.id)} className="p-2 border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-purple-500">
+                        {listing.status==="active"&&(<EyeOffIcon className="size-4"/>)}
+                        {listing.status!=="active"&&(<EyeIcon className="size-4"/>)}
+                      </button>
+
+                    </div>
+
+                  </div>
+                </div>
               </div>
             </div>
           ))}
+          <div className="bg-white border-t border-gray-200 p-4 text-center mt-28">
+        <p className="text-sm text-gray-500">
+          © 2025 <span className="text-indigo-600">FlipEarn</span>. All rights
+          reserved.
+        </p>
+      </div>
         </div>
       )}
     </div>
