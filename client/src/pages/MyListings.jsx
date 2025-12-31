@@ -23,6 +23,8 @@ import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import StatsCard from "../components/StatsCard";
 import { platformIcons } from "../assets/assets";
+import CredentialSubmisson from "../components/CredentialSubmisson";
+import WithdrawModel from "../components/WithdrawModel";
 
 const MyListings = () => {
   const { userListings, balance } = useSelector((state) => state.listing);
@@ -134,7 +136,11 @@ const MyListings = () => {
         />
       </div>
       {/* balance section */}
-      <div className="flex flex-col sm:flex-row justify-between gap-4 xl:gap-20 p-6 mb-10 bg-white rounded-xl border border-gray-200">
+      <div
+        
+
+        className="flex flex-col sm:flex-row justify-between gap-4 xl:gap-20 p-6 mb-10 bg-white rounded-xl border border-gray-200"
+      >
         {[
           { label: "Earned", value: balance.earned, icon: WalletIcon },
           {
@@ -145,6 +151,7 @@ const MyListings = () => {
           { label: "Available", value: balance.available, icon: CoinsIcon },
         ].map((item, index) => (
           <div
+          onClick={() => item.label === "Available" && setShowWithdrawl(true)}
             key={index}
             className="flex flex-1 items-center justify-between p-4 rounded-lg border border-gray-100 cursor-pointer"
           >
@@ -209,7 +216,12 @@ const MyListings = () => {
                               {/* if credential not submitted */}
                               {!listing.isCredentialSubmitted && (
                                 <>
-                                  <button className="flex items-center gap-2 text-nowrap">
+                                  <button
+                                    onClick={() =>
+                                      setShowCredentialSubmission(listing)
+                                    }
+                                    className="flex items-center gap-2 text-nowrap"
+                                  >
                                     Add Credentials
                                   </button>
                                   <hr className="border-gray-200 my-2" />
@@ -325,17 +337,23 @@ const MyListings = () => {
               </div>
             </div>
           ))}
-          {/* footer */}
-          <div className="bg-white border-t border-gray-200 p-4 text-center mt-28">
-            <p className="text-sm text-gray-500">
-              © 2025 <span className="text-indigo-600">FlipEarn</span>. All
-              rights reserved.
-            </p>
-          </div>
         </div>
-        
       )}
-      
+      {
+        showCredentialSubmission &&(<CredentialSubmisson listing={showCredentialSubmission} onClose={()=>setShowCredentialSubmission(null)}/>)
+      }
+
+      {
+        showWithdrawl &&
+        (<WithdrawModel onClose={()=>setShowWithdrawl(null)}/>)
+      }
+      {/* footer */}
+      <div className="bg-white border-t border-gray-200 p-4 text-center mt-28">
+        <p className="text-sm text-gray-500">
+          © 2025 <span className="text-indigo-600">FlipEarn</span>. All rights
+          reserved.
+        </p>
+      </div>
     </div>
   );
 };
