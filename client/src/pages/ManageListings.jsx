@@ -128,15 +128,170 @@ const ManageListings = () => {
               : "Create a mock listing to display your account info"}
           </p>
         </div>
-        <form
-          onSubmit={handleSubmit} className="space-y-8"
-        >
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic info */}
-          
+          <Section title="Basic Information">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <InputField
+                label="Listing Title *"
+                value={formaData.title}
+                placeholder="e.g., Premium Travel Instagram Account"
+                onChange={(e) => handleInputChange("title", e)}
+                required={true}
+              />
+              <SelectField
+                label="Platform *"
+                options={platforms}
+                value={formaData.platform}
+                onChange={(v) => handleInputChange("platform", v)}
+                required={true}
+              />
+
+              <InputField
+                label="Username/Handle *"
+                value={formaData.username}
+                placeholder="@username"
+                onChange={(e) => handleInputChange("username", e)}
+                required={true}
+              />
+
+              <SelectField
+                label="Niche/Category *"
+                options={niches}
+                value={formaData.niche}
+                onChange={(v) => handleInputChange("niche", v)}
+                required={true}
+              />
+            </div>
+          </Section>
+          {/* Metrics */}
+          <Section title="Account Metrics">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <InputField
+                label="Followers Count *"
+                type="number"
+                min={0}
+                value={formaData.followers_count}
+                placeholder="10000"
+                onChange={(e) => handleInputChange("followers_count", e)}
+                required={true}
+              />
+              <InputField
+                label="Engagement Rate (%)"
+                type="number"
+                min={0}
+                max={100}
+                value={formaData.engagement_rate}
+                placeholder="4"
+                onChange={(e) => handleInputChange("engagement_rate", e)}
+              />
+              <InputField
+                label="Monthly Views/Impressions"
+                type="number"
+                min={0}
+                value={formaData.monthly_views}
+                placeholder="100000"
+                onChange={(e) => handleInputChange("monthly_views", e)}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <InputField
+                label="Primary Audience Country"
+                
+                value={formaData.country}
+                placeholder="United States"
+                onChange={(e) => handleInputChange("country", e)}
+                
+              />
+              <SelectField
+                label="Primary Audience Age Range"
+                options={ageRange}
+                value={formaData.age_range}
+                onChange={(v) => handleInputChange("age_range", v)}
+                
+              />
+
+              </div>
+              <div className="space-y-3">
+                <CheckboxField label="Account is verified on the platform" checked={FormData.verified} onChange={(v)=>handleInputChange('verified',v)}/>
+
+                <CheckboxField label="Account is monetized on the platform" checked={FormData.monetized} onChange={(v)=>handleInputChange('monetized',v)}/>
+              </div>
+          </Section>
         </form>
       </div>
     </div>
   );
 };
+
+const Section = ({ title, children }) => (
+  <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+    <h2>{title}</h2>
+    {children}
+  </div>
+);
+
+const InputField = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  required = false,
+  min = null,
+  max = null,
+}) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      {label}
+    </label>
+    <input
+      type={type}
+      min={min}
+      max={max}
+      placeholder={placeholder}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full px-3 py-1.5 text-gray-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-300"
+      required={required}
+    />
+  </div>
+);
+
+const SelectField = ({ label, options, value, onChange, required = false }) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      {label}
+    </label>
+    <select
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full px-3 py-1.5 text-gray-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-300"
+      required={required}
+    >
+      <option value="">Select...</option>
+      {options.map((option, index) => (
+        <option value={option}>{option}</option>
+      ))}
+    </select>
+  </div>
+);
+
+const CheckboxField=({label,checked,onChange,required=false})=>(
+  <label className="flex items-center space-x-2 cursor-pointer" >
+    <input type="checkbox" checked={checked} onChange={(e)=>onChange(e.target.value)} className="size-4" required={required}/>
+    <span className="text-sm text-gray-700">{label}</span>
+
+  </label>
+)
+
+const TextareaField=({label,value,onChange,required=false})=>(
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+    <textarea rows={5} value={value} onChange={(e)=>onChange(e.target.value)} className="w-full px-3 py-1.5 text-gray-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-300" required={required}/>
+
+    
+  </div>
+)
 
 export default ManageListings;
