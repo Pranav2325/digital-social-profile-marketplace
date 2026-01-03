@@ -1,4 +1,4 @@
-import { Loader2Icon } from "lucide-react";
+import { Loader2Icon, Upload, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
@@ -195,29 +195,100 @@ const ManageListings = () => {
               />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                <InputField
+              <InputField
                 label="Primary Audience Country"
-                
                 value={formaData.country}
                 placeholder="United States"
                 onChange={(e) => handleInputChange("country", e)}
-                
               />
               <SelectField
                 label="Primary Audience Age Range"
                 options={ageRange}
                 value={formaData.age_range}
                 onChange={(v) => handleInputChange("age_range", v)}
-                
+              />
+            </div>
+            <div className="space-y-3">
+              <CheckboxField
+                label="Account is verified on the platform"
+                checked={FormData.verified}
+                onChange={(v) => handleInputChange("verified", v)}
               />
 
-              </div>
-              <div className="space-y-3">
-                <CheckboxField label="Account is verified on the platform" checked={FormData.verified} onChange={(v)=>handleInputChange('verified',v)}/>
-
-                <CheckboxField label="Account is monetized on the platform" checked={FormData.monetized} onChange={(v)=>handleInputChange('monetized',v)}/>
-              </div>
+              <CheckboxField
+                label="Account is monetized on the platform"
+                checked={FormData.monetized}
+                onChange={(v) => handleInputChange("monetized", v)}
+              />
+            </div>
           </Section>
+          {/* pricing and description */}
+          <Section title="Pricing & Description">
+            <InputField
+              label="Asking Price (USD) *"
+              type="number"
+              min={0}
+              value={formaData.price}
+              placeholder="500"
+              onChange={(e) => handleInputChange("price", e)}
+              required={true}
+            />
+            <TextareaField
+              label="Descrption *"
+              value={formaData.description}
+              onChange={(v) => handleInputChange("description", v)}
+              required={true}
+            />
+          </Section>
+          {/* screenshots and proofs */}
+          <Section title="Screenshots & Proof">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <input
+                type="file"
+                id="images"
+                multiple
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+              <label
+                htmlFor="images"
+                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer"
+              >
+                Choose Files
+              </label>
+              <p className="text-sm text-gray-500 mt-2">
+                Upload screenshots or proofs of account analytics
+              </p>
+            </div>
+            {formaData.images.length > 0 && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                {formaData.images.map((img, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={
+                        typeof img === "string" ? img : URL.createObjectURL(img)
+                      }
+                      alt={`image ${index + 1}`}
+                      className="w-full h-24 object-cover rounded-lg"
+                    />
+                    <button type="button" onClick={() => removeImage(index)}>
+                      <X className="absolute -top-2 -right-2 size-6 bg-red-600 text-white rounded-full hover:bg-red-700" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Section>
+          <div className="flex justify-end gap-3 text-sm">
+            <button onClick={()=>navigate(-1)} type="button" className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
+            <button type="submit" className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+              {isEditing?'Update Listing':'Create Listing'}
+
+            </button>
+
+          </div>
         </form>
       </div>
     </div>
@@ -277,21 +348,32 @@ const SelectField = ({ label, options, value, onChange, required = false }) => (
   </div>
 );
 
-const CheckboxField=({label,checked,onChange,required=false})=>(
-  <label className="flex items-center space-x-2 cursor-pointer" >
-    <input type="checkbox" checked={checked} onChange={(e)=>onChange(e.target.value)} className="size-4" required={required}/>
+const CheckboxField = ({ label, checked, onChange, required = false }) => (
+  <label className="flex items-center space-x-2 cursor-pointer">
+    <input
+      type="checkbox"
+      checked={checked}
+      onChange={(e) => onChange(e.target.value)}
+      className="size-4"
+      required={required}
+    />
     <span className="text-sm text-gray-700">{label}</span>
-
   </label>
-)
+);
 
-const TextareaField=({label,value,onChange,required=false})=>(
+const TextareaField = ({ label, value, onChange, required = false }) => (
   <div>
-    <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-    <textarea rows={5} value={value} onChange={(e)=>onChange(e.target.value)} className="w-full px-3 py-1.5 text-gray-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-300" required={required}/>
-
-    
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      {label}
+    </label>
+    <textarea
+      rows={5}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full px-3 py-1.5 text-gray-600 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 border-gray-300"
+      required={required}
+    />
   </div>
-)
+);
 
 export default ManageListings;
