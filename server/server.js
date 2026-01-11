@@ -4,6 +4,7 @@ import cors from "cors";
 import { clerkMiddleware } from '@clerk/express'
 import { serve } from "inngest/express";
 import { inngest, functions } from "./inngest/index.js"
+import listingRouter from "./routes/listingRoutes.js";
 
 
 const app=express();
@@ -14,6 +15,7 @@ app.use(clerkMiddleware())
 
 app.get("/",(req,res)=>res.send("server is live"))
 app.use("/api/inngest", serve({ client: inngest, functions }));
+app.use('/api/listings',listingRouter)
 
 const PORT=process.env.PORT ||3000;
 app.listen(PORT,()=>console.log(`server running on ${PORT}`))
