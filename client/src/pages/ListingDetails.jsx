@@ -19,9 +19,12 @@ import {
   Users,
 } from "lucide-react";
 import { setChat } from "../app/features/chatSlice";
+import { useAuth, useUser } from "@clerk/clerk-react";
+import toast from "react-hot-toast";
 
 const ListingDetails = () => {
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
+  const { user, isLoaded } = useUser();
 
   const navigate = useNavigate();
   const currency = import.meta.env.VITE_CURRENCY || "$";
@@ -40,14 +43,15 @@ const ListingDetails = () => {
   const nextSlide = () =>
     setCurrent((prev) => (prev === images.length - 1 ? 0 : prev + 1));
 
-  const loadChatBox=  ()=>{
-    dispatch(setChat({listing:listing}))
+  const loadChatBox = () => {
+    if (!isLoaded) return; // wait for clerk to finish
 
-    
-  }
-  const purchaseAccount=async ()=>{
-
-  }
+    if (!user) return toast("Please login to chat with seller");
+    if (user.id === listing.ownerId)
+      return toast("You can't chat with your own listing");
+    dispatch(setChat({ listing: listing }));
+  };
+  const purchaseAccount = async () => {};
 
   useEffect(() => {
     const listing = listings.find((listing) => listing.id === listingId);
@@ -286,12 +290,18 @@ const ListingDetails = () => {
               </span>
             </p>
           </div>
-          <button onClick={loadChatBox} className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium flex items-center justify-center gap-2">
+          <button
+            onClick={loadChatBox}
+            className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition text-sm font-medium flex items-center justify-center gap-2"
+          >
             <MessageSquareMoreIcon className="size-4" />
             Chat
           </button>
           {listing.isCredentialChanged && (
-            <button onClick={purchaseAccount} className="w-full mt-2 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition text-sm font-medium flex items-center justify-center gap-2">
+            <button
+              onClick={purchaseAccount}
+              className="w-full mt-2 bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 transition text-sm font-medium flex items-center justify-center gap-2"
+            >
               <ShoppingBagIcon className="size-4" />
               Purchase
             </button>
