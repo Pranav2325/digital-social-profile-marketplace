@@ -89,27 +89,25 @@ const FilterSidebar = ({
     },
   ];
   const niches = [
-    { value: "lifestyle", label: "Lifestyle" },
-    { value: "fitness", label: "Fitness" },
-    { value: "business", label: "Business" },
-    { value: "finance", label: "Finance" },
-    { value: "crypto", label: "Crypto" },
-    { value: "technology", label: "Technology" },
-    { value: "gaming", label: "Gaming" },
-    { value: "education", label: "Education" },
-    { value: "motivation", label: "Motivation" },
-    { value: "fashion", label: "Fashion" },
-    { value: "travel", label: "Travel" },
-    { value: "food", label: "Food" },
-    { value: "health", label: "Health" },
-    { value: "beauty", label: "Beauty" },
-    { value: "real_estate", label: "Real Estate" },
-    { value: "marketing", label: "Marketing" },
-    { value: "entertainment", label: "Entertainment" },
-    { value: "news", label: "News" },
-    { value: "sports", label: "Sports" },
-    { value: "self_improvement", label: "Self Improvement" },
-  ];
+  { value: "lifestyle", label: "Lifestyle" },
+  { value: "fitness", label: "Fitness" },
+  { value: "food", label: "Food" },
+  { value: "travel", label: "Travel" },
+  { value: "tech", label: "Tech" },
+  { value: "gaming", label: "Gaming" },
+  { value: "fashion", label: "Fashion" },
+  { value: "beauty", label: "Beauty" },
+  { value: "business", label: "Business" },
+  { value: "education", label: "Education" },
+  { value: "entertainment", label: "Entertainment" },
+  { value: "music", label: "Music" },
+  { value: "art", label: "Art" },
+  { value: "sports", label: "Sports" },
+  { value: "health", label: "Health" },
+  { value: "finance", label: "Finance" },
+  { value: "other", label: "Other" },
+];
+
   return (
     <div
       className={`${

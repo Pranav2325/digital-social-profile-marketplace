@@ -49,24 +49,26 @@ const ManageListings = () => {
     "twitch",
     "discord",
   ];
-  const niches = [
-    "finance",
-    "business",
-    "entrepreneurship",
-    "marketing",
-    "tech",
-    "programming",
-    "fitness",
-    "health",
-    "self_improvement",
-    "education",
-    "lifestyle",
-    "travel",
-    "fashion",
-    "gaming",
-    "entertainment",
-    "other",
-  ];
+ const niches = [
+  "lifestyle",
+  "fitness",
+  "food",
+  "travel",
+  "tech",
+  "gaming",
+  "fashion",
+  "beauty",
+  "business",
+  "education",
+  "entertainment",
+  "music",
+  "art",
+  "sports",
+  "health",
+  "finance",
+  "other",
+];
+
 
   const ageRange = [
     "13-17 years",
