@@ -57,7 +57,7 @@ const App = () => {
         <Route index element={<Dashboard/>}/>
         <Route path="verify-credentials" element={<CredentialVerify/>}/>
         <Route path="change-credentials" element={<CredentialChange/>}/>
-        <Route path="list-credentials" element={<AllListings/>}/>
+        <Route path="list-listings" element={<AllListings/>}/>
         <Route path="transactions" element={<Transactions/>}/>
         <Route path="withdrawal" element={<Withdrawal/>}/>
 
