@@ -81,29 +81,46 @@ export const getAllUserListing = async (req, res) => {
   try {
     const { userId } = await req.auth();
 
-    const listings = await prisma.listing.findMany({
-      where: { ownerId: userId, status: { not: "deleted" } },
-
-      orderBy: { createdAt: "desc" },
-    });
-    const user = await prisma.user.findUnique({
+    // 1. Find user in DB
+    let user = await prisma.user.findUnique({
       where: { id: userId },
     });
+
+    // 2. If not found, create user in DB
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          id: userId,
+          email: "",    // optional, fill from Clerk if needed
+          name: "",
+          image: "",
+          earned: 0,
+          withdrawn: 0,
+        },
+      });
+    }
+
+    // 3. Fetch listings
+    const listings = await prisma.listing.findMany({
+      where: { ownerId: userId, status: { not: "deleted" } },
+      orderBy: { createdAt: "desc" },
+    });
+
+    // 4. Prepare safe balance
     const balance = {
       earned: user.earned,
       withdrawn: user.withdrawn,
       available: user.earned - user.withdrawn,
     };
 
-    if (!listings || listings.length === 0) {
-      return res.json({ listings: [], balance });
-    }
     return res.json({ listings, balance });
+
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.code || error.message });
   }
 };
+
 //controller for updating listings in DB
 
 export const updateListing = async (req, res) => {

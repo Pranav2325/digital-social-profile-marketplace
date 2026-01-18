@@ -6,6 +6,7 @@ export const protect = async (req, res, next) => {
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+    req.user = { id: userId };
 
     const hasPremiumPlan = await has({ plan: "premium" });
     req.plan = hasPremiumPlan ? "premium" : "free";

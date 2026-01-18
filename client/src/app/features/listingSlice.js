@@ -10,7 +10,7 @@ export const getAllPublicListing = createAsyncThunk(
       return data;
     } catch (error) {
       console.log(error);
-      return [];
+      return { listings: [] };
     }
   }
 );
@@ -27,7 +27,7 @@ export const getAllUserListing = createAsyncThunk(
       return data;
     } catch (error) {
       console.log(error);
-      return [];
+      return { listings: [] };
     }
   }
 );
@@ -49,11 +49,11 @@ const listingSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder.addCase(getAllPublicListing.fulfilled, (state, action) => {
-      state.listings = action.payload.listings;
+      state.listings = action.payload?.listings||[];
     });
     builder.addCase(getAllUserListing.fulfilled, (state, action) => {
-      state.userListings = action.payload.listings;
-      state.balance = action.payload.balance;
+      state.userListings = action.payload?.listings||[];
+      state.balance = action.payload?.balance||state.balance;
     });
   },
 });
