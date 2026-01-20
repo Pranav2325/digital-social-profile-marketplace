@@ -24,12 +24,15 @@
     "inngest": "^3.48.1",
     "lodash": "^4.17.21",
     "multer": "^2.0.2",
+    "nodemailer": "^7.0.12",
+    "prisma": "^7.2.0",
+    "stripe": "^20.2.0",
     "ws": "^8.19.0"
   },
   "devDependencies": {
-    "@types/node": "^25.0.3",
+    "@prisma/config": "^7.2.0",
+    "@types/node": "^25.0.9",
     "@types/ws": "^8.18.1",
-    "nodemon": "^3.1.11",
-    "prisma": "^7.2.0"
+    "nodemon": "^3.1.11"
   }
 }

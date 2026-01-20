@@ -19,12 +19,15 @@ import {
   Users,
 } from "lucide-react";
 import { setChat } from "../app/features/chatSlice";
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useAuth, useClerk, useUser } from "@clerk/clerk-react";
 import toast from "react-hot-toast";
+import api from "../configs/axios";
 
 const ListingDetails = () => {
   const dispatch = useDispatch();
   const { user, isLoaded } = useUser();
+  const { openSignIn } = useClerk();
+  const { getToken } = useAuth();
 
   const navigate = useNavigate();
   const currency = import.meta.env.VITE_CURRENCY || "$";
@@ -51,7 +54,23 @@ const ListingDetails = () => {
       return toast("You can't chat with your own listing");
     dispatch(setChat({ listing: listing }));
   };
-  const purchaseAccount = async () => {};
+  const purchaseAccount = async () => {
+    try {
+      if (!user) return openSignIn();
+      toast.loading("Creating a payment link...");
+      const token = await getToken();
+      const { data } = await api.get(
+        `api/listings/purchase-account/${listing.id}`,
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      toast.dismissAll();
+      window.location.href = data.paymentLink;
+    } catch (error) {
+      toast.dismissAll();
+      toast.error(error?.response?.data?.message || error.message);
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     const listing = listings.find((listing) => listing.id === listingId);
@@ -272,14 +291,25 @@ const ListingDetails = () => {
             Seller Information
           </h4>
           <div className="flex items-center gap-3 mb-2">
-            <img
-              src={listing.owner?.image}
-              alt="seller image"
-              className="size-10 rounded-full"
-            />
+            {listing.owner?.image ? (
+              <img
+                src={listing.owner.image}
+                alt="seller image"
+                className="size-10 rounded-full object-cover"
+              />
+            ) : (
+              /* FALLBACK: Show a colored circle with a letter if image is missing */
+              <div className="size-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
+                {listing.owner?.name?.charAt(0) || "S"}
+              </div>
+            )}
             <div>
-              <p className="font-medium text-gray-800">{listing.owner?.name}</p>
-              <p className="text-sm text-gray-500">{listing.owner?.email}</p>
+              <p className="font-medium text-gray-800">
+                {listing.owner?.name || "Unknown"}
+              </p>
+              <p className="text-sm text-gray-500">
+                {listing.owner?.email || "No email"}
+              </p>
             </div>
           </div>
           <div className="flex items-center justify-between text-sm text-gray-600 mb-4">

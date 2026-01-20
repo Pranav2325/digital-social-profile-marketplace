@@ -3,6 +3,7 @@
 import imagekit from "../configs/imageKit.js";
 import prisma from "../configs/prisma.js";
 import fs, { access } from "fs";
+import Stripe from "stripe";
 
 export const addListing = async (req, res) => {
   try {
@@ -91,7 +92,7 @@ export const getAllUserListing = async (req, res) => {
       user = await prisma.user.create({
         data: {
           id: userId,
-          email: "",    // optional, fill from Clerk if needed
+          email: "", // optional, fill from Clerk if needed
           name: "",
           image: "",
           earned: 0,
@@ -114,7 +115,6 @@ export const getAllUserListing = async (req, res) => {
     };
 
     return res.json({ listings, balance });
-
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.code || error.message });
@@ -320,7 +320,7 @@ export const getAllUserOrders = async (req, res) => {
     });
     const ordersWithCredentials = orders.map((order) => {
       const credential = credentials.find(
-        (cred) => cred.listingId === order.listingId
+        (cred) => cred.listingId === order.listingId,
       );
       return { ...order, credential };
     });
@@ -365,11 +365,58 @@ export const withdrawAmount = async (req, res) => {
 
 export const purchaseAccount = async (req, res) => {
   try {
-    
+    const { userId } = await req.auth();
+    const { listingId } = req.params;
+    const { origin } = req.headers;
+    const listing = await prisma.listing.findFirst({
+      where: { id: listingId, status: "active" },
+    });
+    if (!listing)
+      return res
+        .status(404)
+        .json({ message: "listing not found or not active" });
+    if (listing.ownerId === userId)
+      return res
+        .status(400)
+        .json({ message: "you can't purchase your own listing" });
+
+    const transaction = await prisma.transaction.create({
+      data: {
+        listingId,
+        ownerId: listing.ownerId,
+        userId,
+        amount: listing.price,
+      },
+    });
+    const stripeInstance = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+    const session = await stripeInstance.checkout.sessions.create({
+      success_url: `${origin}/loading/my-orders`,
+      cancel_url:`${origin}/marketplace`,
+      line_items: [
+        {
+          price_data:{
+            currency:"usd",
+            product_data:{
+              name:`Purchasing Account @${listing.username} of ${listing.platform}`
+            },
+            unit_amount:Math.floor(transaction.amount)*100,
+          },
+          quantity:1
+        },
+      ],
+      mode: "payment",
+      metadata:{
+        transactionId:transaction.id,
+        appId:"flipearn",
+        
+      },
+      expires_at:Math.floor(Date.now()/1000)+30*60 //30 min expiry
+
+    });
+    return res.json({paymentLink:session.url})
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.code || error.message });
   }
 };
-
-
