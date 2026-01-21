@@ -7,9 +7,11 @@ import { inngest, functions } from "./inngest/index.js"
 import listingRouter from "./routes/listingRoutes.js";
 import chatRouter from "./routes/chatRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
+import { stripeWebhook } from "./controllers/stripeWebhook.js";
 
 
 const app=express();
+app.use('/api/stripe',express.raw({type:'application/json'}),stripeWebhook)
 
 app.use(express.json())
 app.use(cors())
