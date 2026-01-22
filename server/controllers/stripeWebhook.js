@@ -1,5 +1,6 @@
 import stripe from "stripe";
 import prisma from "../configs/prisma.js";
+import { inngest } from "../inngest/index.js";
 
 export const stripeWebhook = async (request, response) => {
   const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
@@ -34,6 +35,11 @@ export const stripeWebhook = async (request, response) => {
               data: { isPaid: true },
             });
             //Send new credentials to the buyer using emaiol id
+            await inngest.send({
+              name:"app/purchase",
+              data:{transaction}
+            })
+            
             
             //mark listing sold
             await prisma.listing.update({

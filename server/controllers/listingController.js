@@ -4,6 +4,7 @@ import imagekit from "../configs/imageKit.js";
 import prisma from "../configs/prisma.js";
 import fs, { access } from "fs";
 import Stripe from "stripe";
+import { inngest } from "../inngest/index.js";
 
 export const addListing = async (req, res) => {
   try {
@@ -234,6 +235,10 @@ export const deleteUserListing = async (req, res) => {
     //if passward has been changes send the new pass tot the owner
     if (listing.isCredentialChanged) {
       //send email to owner
+      await inngest.send({
+        name: "app/listing-deleted",
+        data: { listing, listingId },
+      });
     }
     await prisma.listing.update({
       where: { id: listingId },
@@ -392,29 +397,27 @@ export const purchaseAccount = async (req, res) => {
 
     const session = await stripeInstance.checkout.sessions.create({
       success_url: `${origin}/loading/my-orders`,
-      cancel_url:`${origin}/marketplace`,
+      cancel_url: `${origin}/marketplace`,
       line_items: [
         {
-          price_data:{
-            currency:"usd",
-            product_data:{
-              name:`Purchasing Account @${listing.username} of ${listing.platform}`
+          price_data: {
+            currency: "usd",
+            product_data: {
+              name: `Purchasing Account @${listing.username} of ${listing.platform}`,
             },
-            unit_amount:Math.floor(transaction.amount)*100,
+            unit_amount: Math.floor(transaction.amount) * 100,
           },
-          quantity:1
+          quantity: 1,
         },
       ],
       mode: "payment",
-      metadata:{
-        transactionId:transaction.id,
-        appId:"flipearn",
-        
+      metadata: {
+        transactionId: transaction.id,
+        appId: "flipearn",
       },
-      expires_at:Math.floor(Date.now()/1000)+30*60 //30 min expiry
-
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60, //30 min expiry
     });
-    return res.json({paymentLink:session.url})
+    return res.json({ paymentLink: session.url });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: error.code || error.message });
