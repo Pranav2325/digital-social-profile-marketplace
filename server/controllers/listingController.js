@@ -9,6 +9,24 @@ import { inngest } from "../inngest/index.js";
 export const addListing = async (req, res) => {
   try {
     const { userId } = await req.auth();
+    // Ensure owner exists in DB
+    let owner = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!owner) {
+      owner = await prisma.user.create({
+        data: {
+          id: userId,
+          email: req.auth?.email || "",
+          name: req.auth?.firstName || "",
+          image: req.auth?.imageUrl || "",
+          earned: 0,
+          withdrawn: 0,
+        },
+      });
+    }
+
     if (req.plan != "premium") {
       const listingCount = await prisma.listing.count({
         where: { ownerId: userId },
@@ -105,6 +123,7 @@ export const getAllUserListing = async (req, res) => {
     // 3. Fetch listings
     const listings = await prisma.listing.findMany({
       where: { ownerId: userId, status: { not: "deleted" } },
+      include: { owner: true },
       orderBy: { createdAt: "desc" },
     });
 

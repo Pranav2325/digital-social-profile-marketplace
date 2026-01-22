@@ -1,4 +1,5 @@
 import { clerkClient } from "@clerk/express";
+import prisma from "../configs/prisma.js";
 
 export const protect = async (req, res, next) => {
   try {
@@ -6,6 +7,28 @@ export const protect = async (req, res, next) => {
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
+
+    // Get Clerk user info
+    const clerkUser = await clerkClient.users.getUser(userId);
+
+    // Sync Clerk user into Prisma (fixes empty owner name/email/image)
+    await prisma.user.upsert({
+      where: { id: userId },
+      update: {
+        name: clerkUser.fullName || "",
+        email: clerkUser.primaryEmailAddress?.emailAddress || "",
+        image: clerkUser.imageUrl || "",
+      },
+      create: {
+        id: userId,
+        name: clerkUser.fullName || "",
+        email: clerkUser.primaryEmailAddress?.emailAddress || "",
+        image: clerkUser.imageUrl || "",
+      },
+    });
+
+
+
     req.user = { id: userId };
 
     const hasPremiumPlan = await has({ plan: "premium" });

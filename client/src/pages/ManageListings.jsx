@@ -49,26 +49,25 @@ const ManageListings = () => {
     "twitch",
     "discord",
   ];
- const niches = [
-  "lifestyle",
-  "fitness",
-  "food",
-  "travel",
-  "tech",
-  "gaming",
-  "fashion",
-  "beauty",
-  "business",
-  "education",
-  "entertainment",
-  "music",
-  "art",
-  "sports",
-  "health",
-  "finance",
-  "other",
-];
-
+  const niches = [
+    "lifestyle",
+    "fitness",
+    "food",
+    "travel",
+    "tech",
+    "gaming",
+    "fashion",
+    "beauty",
+    "business",
+    "education",
+    "entertainment",
+    "music",
+    "art",
+    "sports",
+    "health",
+    "finance",
+    "other",
+  ];
 
   const ageRange = [
     "13-17 years",
@@ -104,13 +103,19 @@ const ManageListings = () => {
     setLoadingListing(true);
     const listing = userListings.find((listing) => listing.id === id);
     if (listing) {
-      setFormData(listing);
+      setFormData({
+        ...listing,
+        followers_count: listing.followers_count?.toString() || "",
+        engagement_rate: listing.engagement_rate?.toString() || "",
+        monthly_views: listing.monthly_views?.toString() || "",
+        price: listing.price?.toString() || "",
+      });
       setLoadingListing(false);
     } else {
       toast.error("Listing not found");
       navigate("/my-listings");
     }
-  }, [id]);
+  }, [id,userListings]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -119,7 +124,7 @@ const ManageListings = () => {
     try {
       if (isEditing) {
         dataCopy.images = formData.images.filter(
-          (image) => typeof image === "string"
+          (image) => typeof image === "string",
         );
         const formDataInstance = new FormData();
         formDataInstance.append("accountDetails", JSON.stringify(dataCopy));
@@ -156,7 +161,7 @@ const ManageListings = () => {
       }
     } catch (error) {
       toast.dismissAll();
-      toast.error(error?.response?.data?.message||error.message)
+      toast.error(error?.response?.data?.message || error.message);
     }
   };
   if (loadingListing) {
@@ -402,7 +407,9 @@ const SelectField = ({ label, options, value, onChange, required = false }) => (
     >
       <option value="">Select...</option>
       {options.map((option, index) => (
-        <option key={index} value={option}>{option}</option>
+        <option key={index} value={option}>
+          {option}
+        </option>
       ))}
     </select>
   </div>
@@ -413,7 +420,7 @@ const CheckboxField = ({ label, checked, onChange, required = false }) => (
     <input
       type="checkbox"
       checked={checked}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(e) => onChange(e.target.checked)}
       className="size-4"
       required={required}
     />

@@ -60,7 +60,7 @@ const ListingDetails = () => {
       toast.loading("Creating a payment link...");
       const token = await getToken();
       const { data } = await api.get(
-        `api/listings/purchase-account/${listing.id}`,
+        `/api/listings/purchase-account/${listing.id}`,
         { headers: { Authorization: `Bearer ${token}` } },
       );
       toast.dismissAll();
@@ -73,10 +73,14 @@ const ListingDetails = () => {
   };
 
   useEffect(() => {
-    const listing = listings.find((listing) => listing.id === listingId);
+    const listing = listings.find((l) => String(l.id) === String(listingId));
+
     if (listing) {
       setListing(listing);
     }
+    console.log("LISTING FROM REDUX = ", listing);
+
+    
   }, [listingId, listings]);
 
   return listing ? (
